@@ -11,7 +11,7 @@ function logger() {
     },
   });
 }
-app.use(pinoLogger());
+app.use(logger());
 // app.use(logger());
 app.notFound(notFound);
 app.onError(onError);
