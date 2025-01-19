@@ -1,22 +1,22 @@
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { pinoLogger } from "hono-pino";
+import { logger } from "hono/logger";
+import { notFound, onError } from "stoker/middlewares";
 
-const app = new Hono();
-
-app.get("/", (c) => {
-  return c.json({ message: "Hello World!" });
-});
-
-app.get("/demo", async (s) => {
-  const body = await s.req.json();
-  const result = await s.env.AI.run("@cf/mistral/mistral-7b-instruct-v0.1", {
-    messages: [
-      {
-        role: "user",
-        content: body.text,
-      },
-    ],
+const app = new OpenAPIHono();
+function logger() {
+  return pinoLogger({
+    http: {
+      reqId: () => crypto.randomUUID(),
+    },
   });
-  return s.json({ message: "demo", result });
+}
+app.use(pinoLogger());
+// app.use(logger());
+app.notFound(notFound);
+app.onError(onError);
+app.get("/", (c) => {
+  return c.text("Hello Hono!");
 });
 
 export default app;
